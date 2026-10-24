@@ -1,0 +1,372 @@
+/* ==========================================================================
+   Modern Polished Tic-Tac-Toe Stylesheet
+   Pure CSS - Zero JavaScript or HTML changes required
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap');
+
+/* CSS Variables for design tokens */
+:root {
+  --bg-dark-1: #090d16;
+  --bg-dark-2: #131b2e;
+  --bg-dark-3: #1a162b;
+  
+  --card-bg: rgba(255, 255, 255, 0.04);
+  --card-border: rgba(255, 255, 255, 0.08);
+  --cell-bg: rgba(255, 255, 255, 0.05);
+  --cell-bg-hover: rgba(255, 255, 255, 0.1);
+  --cell-border: rgba(255, 255, 255, 0.1);
+  
+  --primary-accent: #6366f1;
+  --primary-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+  --secondary-gradient: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+  
+  --mark-color: #38bdf8;
+  --mark-glow: 0 0 20px rgba(56, 189, 248, 0.45);
+  
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  
+  --radius-lg: 24px;
+  --radius-md: 18px;
+  --radius-pill: 9999px;
+  
+  --transition-smooth: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Base reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: 
+    radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.18) 0%, transparent 45%),
+    radial-gradient(circle at 85% 85%, rgba(236, 72, 153, 0.14) 0%, transparent 45%),
+    radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.08) 0%, transparent 55%),
+    linear-gradient(140deg, var(--bg-dark-1) 0%, var(--bg-dark-2) 50%, var(--bg-dark-3) 100%);
+  background-attachment: fixed;
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: var(--text-main);
+  text-align: center;
+  padding: 24px 16px;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Subtle background grid pattern overlay for depth */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 32px 32px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Winner message container:
+   In-flow celebratory card directly above the game board.
+   Never covers or hides the game board, ensuring players can inspect the final board state. */
+.msg-container {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto 20px auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 24px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(250, 204, 21, 0.35);
+  border-radius: var(--radius-md);
+  box-shadow: 
+    0 16px 36px -8px rgba(0, 0, 0, 0.5),
+    0 0 24px rgba(250, 204, 21, 0.15),
+    inset 0 1px 1px rgba(255, 255, 255, 0.15);
+  animation: slideDown 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  z-index: 10;
+}
+
+/* Winner/Draw announcement text */
+.msg {
+  font-size: clamp(1.4rem, 4.5vw, 2.1rem);
+  font-weight: 800;
+  line-height: 1.3;
+  letter-spacing: 0.5px;
+  background: linear-gradient(135deg, #fef08a 0%, #facc15 45%, #fb923c 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 12px rgba(250, 204, 21, 0.35));
+  max-width: 100%;
+  text-align: center;
+}
+
+/* New Game Button inside winner container */
+#new-btn {
+  padding: 12px 32px;
+  font-family: inherit;
+  font-size: 0.96rem;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: #ffffff;
+  background: var(--secondary-gradient);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-pill);
+  box-shadow: 
+    0 8px 20px -4px rgba(6, 182, 212, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+#new-btn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.12);
+  box-shadow: 
+    0 12px 26px -4px rgba(6, 182, 212, 0.65),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+#new-btn:active {
+  transform: translateY(1px) scale(0.98);
+  filter: brightness(0.95);
+  box-shadow: 0 4px 10px rgba(6, 182, 212, 0.3);
+}
+
+/* Main game wrapper */
+main {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+/* Heading */
+h1 {
+  font-size: clamp(2rem, 5vw, 2.8rem);
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  background: linear-gradient(135deg, #ffffff 25%, #cbd5e1 70%, #94a3b8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.5));
+}
+
+/* Game board container */
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 24px;
+}
+
+/* 3 × 3 grid card */
+.game {
+  width: min(88vw, 370px);
+  aspect-ratio: 1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 13px;
+  padding: 15px;
+  background: var(--card-bg);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  box-shadow: 
+    0 24px 48px -12px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(255, 255, 255, 0.05),
+    inset 0 1px 1px rgba(255, 255, 255, 0.12);
+}
+
+/* Individual boxes/cells */
+.box {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid var(--cell-border);
+  border-radius: var(--radius-md);
+  background: var(--cell-bg);
+  color: var(--mark-color);
+  text-shadow: var(--mark-glow);
+  font-family: inherit;
+  font-size: clamp(2.4rem, 10vw, 3.8rem);
+  font-weight: 900;
+  line-height: 1;
+  box-shadow: 
+    0 6px 14px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Interactive hover state for playable boxes */
+.box:not(:disabled):hover {
+  background: var(--cell-bg-hover);
+  border-color: rgba(99, 102, 241, 0.45);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 
+    0 12px 24px -4px rgba(0, 0, 0, 0.4),
+    0 0 16px rgba(99, 102, 241, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.box:not(:disabled):active {
+  transform: translateY(0) scale(0.97);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Disabled state when a move is placed */
+.box:disabled {
+  cursor: default;
+  opacity: 1;
+}
+
+/* Reset Game Button */
+#reset_button {
+  padding: 13px 32px;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: #ffffff;
+  background: var(--primary-gradient);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: var(--radius-pill);
+  box-shadow: 
+    0 8px 20px -4px rgba(99, 102, 241, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+#reset_button:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.12);
+  box-shadow: 
+    0 12px 26px -4px rgba(99, 102, 241, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+#reset_button:active {
+  transform: translateY(1px) scale(0.98);
+  filter: brightness(0.95);
+  box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
+}
+
+/* Hide helper class (controlled by app.js) */
+.hide {
+  display: none !important;
+}
+
+/* Accessible focus ring */
+button:focus-visible {
+  outline: 2px solid #38bdf8;
+  outline-offset: 3px;
+}
+
+/* Keyframe animations */
+@keyframes slideDown {
+  0% {
+    opacity: 0;
+    transform: translateY(-16px) scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Responsive adjustments for mobile screens */
+@media (max-width: 480px) {
+  body {
+    padding: 16px 12px;
+  }
+
+  h1 {
+    font-size: 1.85rem;
+    margin-bottom: 14px;
+    letter-spacing: 1.5px;
+  }
+
+  .game {
+    width: min(92vw, 320px);
+    gap: 9px;
+    padding: 11px;
+    border-radius: 18px;
+  }
+
+  .box {
+    border-radius: 12px;
+  }
+
+  .msg-container {
+    padding: 14px 18px;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .msg {
+    font-size: 1.35rem;
+  }
+
+  #new-btn {
+    padding: 10px 24px;
+    font-size: 0.9rem;
+  }
+
+  #reset_button {
+    padding: 11px 26px;
+    font-size: 0.92rem;
+  }
+}
+
+@media (max-height: 650px) {
+  h1 {
+    font-size: 1.6rem;
+    margin-bottom: 10px;
+  }
+  
+  .container {
+    margin-bottom: 14px;
+  }
+  
+  .game {
+    width: min(65vh, 300px);
+  }
+
+  .msg-container {
+    margin-bottom: 10px;
+    padding: 10px 14px;
+    gap: 8px;
+  }
+}
